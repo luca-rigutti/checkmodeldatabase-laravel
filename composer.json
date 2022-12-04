@@ -1,0 +1,18 @@
+{
+    "name": "luca-rigutti/checkmodeldatabase-laravel",
+    "description": "This package is for check there are some different between model and database",
+    "autoload": {
+        "psr-4": {
+            "LucaRigutti\\CheckmodeldatabaseLaravel\\": "src/"
+        }
+    },
+    "minimum-stability": "alpha",
+    "require": {},
+    "extra": {
+        "laravel":{
+            "providers":[
+                "LucaRigutti\\CheckmodeldatabaseLaravel\\CheckmodeldatabaseServiceProvider"
+            ]
+        }
+    }
+}
