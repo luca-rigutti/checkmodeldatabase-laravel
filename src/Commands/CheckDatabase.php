@@ -11,7 +11,7 @@ use Illuminate\Support\Arr;
 class CheckDatabase extends Command
 {
 
-    protected $signature = 'model:check';
+    protected $signature = 'model_check:column';
  
 
     protected $description = 'Send a marketing email to a user';
