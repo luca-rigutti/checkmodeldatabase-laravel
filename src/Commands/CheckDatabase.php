@@ -20,19 +20,25 @@ class CheckDatabase extends Command
         parent::__construct();
     }
  
-    private function getAllModels()
+   protected $showDebug = false;
+ 
+    private function getAllModels($path)
     {
         // https://www.itsolutionstuff.com/post/how-to-get-all-models-in-laravelexample.html
         $modelList = [];
-        $path = app_path() . "/Models";
+        
         $results = scandir($path);
+        if($this->showDebug)
+            echo("\nPath scanned: ".$path."\n");
  
         foreach ($results as $result) {
             if ($result === '.' or $result === '..') continue;
-            $filename = $result;
+            $filename = $path ."/" . $result;
+            if($this->showDebug)
+                echo("\nFile: ".$filename);
   
             if (is_dir($filename)) {
-                $modelList = array_merge($modelList, getModels($filename));
+                $modelList = array_merge($modelList, $this->getAllModels($filename));
             }else{
                 $modelList[] = substr($filename,0,-4);
             }
@@ -43,14 +49,20 @@ class CheckDatabase extends Command
 
     public function handle()
     {
-        $modelClasses = $this->getAllModels();
+        $path = app_path() . "/Models"; //TODO: to add like parameter
+        $modelClasses = $this->getAllModels($path);
+
+        $modelClasses = array_map(fn($value) :
+            string => str_replace("/","\\",str_replace(app_path(),"App",$value)) , $modelClasses
+        );
 
 
         foreach($modelClasses as $model)
         {
-            echo("\n".$model."\n");
-            $class = "App\Models\\".$model;
-            $loadModel = new $class;
+            if($this->showDebug)
+                echo($model."\n");
+            
+            $loadModel = new $model;
             $fillable = $loadModel->getFillable();
 
             // https://stackoverflow.com/questions/37157270/how-to-select-all-column-name-from-a-table-in-laravel
@@ -58,8 +70,9 @@ class CheckDatabase extends Command
             $tableColumn = Schema::getColumnListing($loadModel->getTable());
             foreach($fillable as $fil)
                 if (!in_array($fil,$tableColumn))
-                    echo "\n Column ".$fil." not exist";
+                    echo "\n Column ".$fil." not exist inside model: ".$model;
 
         }
+        echo "\n";
     }
 }
